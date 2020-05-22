@@ -66,13 +66,13 @@ class App
         $this->loaded_services[$name] = $this->services[$name]->load($this);
     }
 
-//    /**
-//     * @return ServiceInterface
-//     */
-//    public function getPrinter()
-//    {
-//        return $this->printer;
-//    }
+    /**
+     * @return ServiceInterface
+     */
+    public function getPrinter()
+    {
+        return $this->printer;
+    }
 
     /**
      * @return string

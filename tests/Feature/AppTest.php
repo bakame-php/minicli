@@ -58,15 +58,22 @@ it('asserts App returns null when a service is not found', function () {
     assertNull($service);
 });
 
-it('asserts App registers command', function () {
+it('asserts App registers and executes single command', function () {
 
     $app = getBasicApp();
 
-    $app->registerCommand('minicli-test', function() {
-        return "testing minicli";
+    $app->registerCommand('minicli-test', function() use ($app){
+        $app->getPrinter()->rawOutput("testing minicli");
     });
 
     $command = $app->command_registry->getCallable('minicli-test');
-
     assertIsCallable($command);
-});
+
+    $app->runCommand(['minicli', 'minicli-test']);
+})->expectOutputString("testing minicli");
+
+it('asserts App executes command from namespace', function () {
+    $app = getBasicApp();
+
+    $app->runCommand(['minicli', 'test']);
+})->expectOutputString("test default");
