@@ -2,11 +2,14 @@
 
 use Minicli\App;
 
-
+function getCommandsPath()
+{
+    return __DIR__ . '/Assets/Command';
+}
 function getBasicApp()
 {
     $config = [
-        'app_path' => __DIR__ . '/../Assets/Command',
+        'app_path' => getCommandsPath(),
         'theme' => 'unicorn',
     ];
 

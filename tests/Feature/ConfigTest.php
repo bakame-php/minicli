@@ -2,7 +2,7 @@
 
 use Minicli\Config;
 
-it('asserts config sets properties from constructor', function () {
+it('asserts that config sets properties from constructor', function () {
     $config = new Config([
         "param1" => "value1",
         "param2" => "value2"
@@ -13,7 +13,7 @@ it('asserts config sets properties from constructor', function () {
 });
 
 
-it('asserts config sets and gets', function () {
+it('asserts that config sets and gets properties', function () {
     $config = new Config([
         "param1" => "value1",
         "param2" => "value2"
