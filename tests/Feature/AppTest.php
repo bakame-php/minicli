@@ -88,7 +88,3 @@ it('asserts App prints signature when no command is specified', function () {
 
     $app->runCommand(['minicli']);
 })->expectOutputString("\n./minicli help\n\n");
-
-it('asserts App returns ERROR when command is not found', function () {
-
-});
