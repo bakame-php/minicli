@@ -115,7 +115,7 @@ class App
 
         if (count($input->args) < 2) {
             $this->printSignature();
-            exit;
+            return;
         }
 
         $controller = $this->command_registry->getCallableController($input->command, $input->subcommand);
