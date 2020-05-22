@@ -33,7 +33,7 @@ class CliPrinter implements OutputInterface, ServiceInterface
     
     public function newline()
     {
-        $this->out("\n");
+        $this->rawOutput("\n");
     }
 
     /**
@@ -75,6 +75,14 @@ class CliPrinter implements OutputInterface, ServiceInterface
     public function out($message, $style = "default")
     {
         echo $this->format($message, $style);
+    }
+
+    /**
+     * @param string $content
+     */
+    public function rawOutput($content)
+    {
+       echo $content;
     }
 
     /**
