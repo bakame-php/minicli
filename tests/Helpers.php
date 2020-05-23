@@ -13,5 +13,5 @@ function getBasicApp()
         'theme' => 'unicorn',
     ];
 
-    return new App($config);
+    return App::createFromConfig($config);
 }

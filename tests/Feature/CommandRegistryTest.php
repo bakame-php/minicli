@@ -10,7 +10,7 @@ $config = [
     'theme' => 'unicorn',
 ];
 
-$app = new App($config);
+$app = App::createFromConfig($config);
 $app->registerCommand("minicli-test", function() {
     return true;
 });

@@ -1,11 +1,10 @@
 <?php
 
-use Minicli\Output\Theme\DefaultCliTheme;
-use Minicli\Output\Theme\UnicornCliTheme;
+use Minicli\Output\CliTheme;
 use Minicli\Output\CliColors;
 
 it('asserts that Default CLI theme sets all default styles', function () {
-   $theme = new DefaultCliTheme();
+   $theme = CliTheme::default();
 
    assertIsArray($theme->getDefault());
    assertIsArray($theme->getAlt());
@@ -18,13 +17,11 @@ it('asserts that Default CLI theme sets all default styles', function () {
 });
 
 it('asserts that default theme returns expected colors for default text', function () {
-    $theme_default = new DefaultCliTheme();
-
-    assertContains(CliColors::$FG_WHITE, $theme_default->getDefault());
+    assertContains(CliColors::FG_WHITE, CliTheme::default()->getDefault());
 });
 
 it('asserts that Unicorn CLI theme sets all default styles', function () {
-    $theme = new UnicornCliTheme();
+    $theme = CliTheme::unicorn();
 
     assertIsArray($theme->getDefault());
     assertIsArray($theme->getAlt());

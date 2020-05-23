@@ -1,22 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Minicli\Output;
 
-class CliColors
+interface CliColors
 {
-    static $FG_BLACK = '0;30';
-    static $FG_WHITE = '1;37';
-    static $FG_RED = '0;31';
-    static $FG_GREEN = '0;32';
-    static $FG_BLUE = '1;34';
-    static $FG_CYAN = '0;36';
-    static $FG_MAGENTA = '0;35';
-
-    static $BG_BLACK = '40';
-    static $BG_RED = '41';
-    static $BG_GREEN = '42';
-    static $BG_BLUE = '44';
-    static $BG_CYAN = '46';
-    static $BG_WHITE = '47';
-    static $BG_MAGENTA = '45';
+    public const FG_BLACK = '0;30';
+    public const FG_WHITE = '1;37';
+    public const FG_RED = '0;31';
+    public const FG_GREEN = '0;32';
+    public const FG_BLUE = '1;34';
+    public const FG_CYAN = '0;36';
+    public const FG_MAGENTA = '0;35';
+    public const BG_BLACK = '40';
+    public const BG_RED = '41';
+    public const BG_GREEN = '42';
+    public const BG_BLUE = '44';
+    public const BG_CYAN = '46';
+    public const BG_WHITE = '47';
+    public const BG_MAGENTA = '45';
 }

@@ -1,7 +1,8 @@
 <?php
 
-namespace Minicli;
+declare(strict_types=1);
 
+namespace Minicli;
 
 interface ServiceInterface
 {

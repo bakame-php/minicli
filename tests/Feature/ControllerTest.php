@@ -1,13 +1,5 @@
 <?php
 
-use Minicli\App;
-
-it('asserts controller extracts parameters from command call', function () {
-    $app = getBasicApp();
-
-
-});
-
 it('asserts controller extracts parameters from command call', function () {
     $app = getBasicApp();
 

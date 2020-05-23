@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Minicli\Command;
 
 use Minicli\App;
 use Minicli\ControllerInterface;
-use Minicli\Output\CliPrinter;
+use Minicli\OutputInterface;
 
 abstract class CommandController implements ControllerInterface
 {
@@ -18,21 +20,17 @@ abstract class CommandController implements ControllerInterface
      * Command Logic.
      * @return void
      */
-    abstract public function handle();
+    abstract public function handle(): void;
 
     /**
      * Called before `run`.
-     * @param App $app
      */
-    public function boot(App $app)
+    public function boot(App $app): void
     {
         $this->app = $app;
     }
 
-    /**
-     * @param CommandCall $input
-     */
-    public function run(CommandCall $input)
+    public function run(CommandCall $input): void
     {
         $this->input = $input;
         $this->handle();
@@ -40,68 +38,43 @@ abstract class CommandController implements ControllerInterface
 
     /**
      * Called when `run` is successfully finished.
-     * @return void
      */
-    public function teardown()
+    public function teardown(): void
     {
         //
     }
 
-    /**
-     * @return array
-     */
-    protected function getArgs()
+    protected function getArgs(): array
     {
-        return $this->input->args;
+        return $this->input->getArgs();
     }
 
-    /**
-     * @return array
-     */
-    protected function getParams()
+    protected function getParams(): array
     {
-        return $this->input->params;
+        return $this->input->getParams();
     }
 
-    /**
-     * @param string $param
-     * @return bool
-     */
-    protected function hasParam($param)
+    protected function hasParam(string $param): bool
     {
         return $this->input->hasParam($param);
     }
 
-    /**
-     * @param string $flag
-     * @return bool
-     */
-    protected function hasFlag($flag)
+    protected function hasFlag(string $flag): bool
     {
         return $this->input->hasFlag($flag);
     }
 
-    /**
-     * @param $param
-     * @return null
-     */
-    protected function getParam($param)
+    protected function getParam(string $param): ?string
     {
         return $this->input->getParam($param);
     }
 
-    /**
-     * @return App
-     */
-    protected function getApp()
+    protected function getApp(): App
     {
         return $this->app;
     }
 
-    /**
-     * @return CliPrinter
-     */
-    protected function getPrinter()
+    protected function getPrinter(): OutputInterface
     {
         return $this->getApp()->getPrinter();
     }

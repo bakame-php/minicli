@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Minicli\Command;
 
 use Minicli\App;
@@ -17,83 +19,54 @@ class CommandRegistry implements ServiceInterface
     /** @var array */
     protected $default_registry = [];
 
-    /**
-     * CommandRegistry constructor.
-     * @param string $commands_path
-     */
-    public function __construct($commands_path)
+    public function __construct(string $commands_path)
     {
         $this->commands_path = $commands_path;
     }
 
-    public function load(App $app)
+    public function load(App $app): void
     {
         $this->autoloadNamespaces();
     }
 
-    /**
-     * @return void
-     */
-    public function autoloadNamespaces()
+    public function autoloadNamespaces(): void
     {
         foreach (glob($this->getCommandsPath() . '/*', GLOB_ONLYDIR) as $namespace_path) {
             $this->registerNamespace(basename($namespace_path));
         }
     }
 
-    /**
-     * @param string $command_namespace
-     * @return void
-     */
-    public function registerNamespace($command_namespace)
+    public function registerNamespace(string $command_namespace): void
     {
         $namespace = new CommandNamespace($command_namespace);
         $namespace->loadControllers($this->getCommandsPath());
         $this->namespaces[strtolower($command_namespace)] = $namespace;
     }
 
-    /**
-     * @param string $command
-     * @return CommandNamespace
-     */
-    public function getNamespace($command)
+    public function getNamespace(string $command): ?CommandNamespace
     {
-        return isset($this->namespaces[$command]) ? $this->namespaces[$command] : null;
+        return $this->namespaces[$command] ?? null;
     }
 
-    /**
-     * @return string
-     */
-    public function getCommandsPath()
+    public function getCommandsPath(): string
     {
         return $this->commands_path;
     }
 
     /**
      * Registers an anonymous function as single command.
-     * @param string $name
-     * @param callable $callable
      */
-    public function registerCommand($name, $callable)
+    public function registerCommand(string $name, callable $callable): void
     {
         $this->default_registry[$name] = $callable;
     }
 
-    /**
-     * @param string $command
-     * @return callable|null
-     */
-    public function getCommand($command)
+    public function getCommand(string $command): ?callable
     {
-        return isset($this->default_registry[$command]) ? $this->default_registry[$command] : null;
+        return $this->default_registry[$command] ?? null;
     }
 
-    /**
-     * @param string $command
-     * @param string $subcommand
-     * @return CommandController | null
-     */
-    public function getCallableController($command, $subcommand = "default")
+    public function getCallableController(string $command, string $subcommand = "default"): ?CommandController
     {
         $namespace = $this->getNamespace($command);
 
@@ -105,11 +78,9 @@ class CommandRegistry implements ServiceInterface
     }
 
     /**
-     * @param string $command
-     * @return callable|null
-     * @throws \Exception
+     * @throws CommandNotFoundException
      */
-    public function getCallable($command)
+    public function getCallable(string $command): ?callable
     {
         $single_command = $this->getCommand($command);
         if ($single_command === null) {
@@ -119,10 +90,7 @@ class CommandRegistry implements ServiceInterface
         return $single_command;
     }
 
-    /**
-     * @return array
-     */
-    public function getCommandMap()
+    public function getCommandMap(): array
     {
         $map = [];
 

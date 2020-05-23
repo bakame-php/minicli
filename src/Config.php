@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Minicli;
 
 class Config implements ServiceInterface
 {
-    /** @var  array */
+    /** @var array */
     protected $config;
 
     /**
@@ -20,9 +22,9 @@ class Config implements ServiceInterface
      * @param string $name
      * @return string|null
      */
-    public function __get($name)
+    public function __get(string $name)
     {
-        return isset($this->config[$name]) ? $this->config[$name] : null;
+        return $this->config[$name] ?? null;
     }
 
     /**
@@ -34,7 +36,7 @@ class Config implements ServiceInterface
         $this->config[$name] = $value;
     }
 
-    public function has($name)
+    public function has(string $name): bool
     {
         return isset($this->config[$name]);
     }

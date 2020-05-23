@@ -1,62 +1,96 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Minicli\Output;
 
-use Minicli\App;
-use Minicli\Config;
-use Minicli\Output\Theme\DefaultCliTheme;
 use Minicli\OutputInterface;
-use Minicli\ServiceInterface;
 
-class CliPrinter implements OutputInterface, ServiceInterface
+class CliPrinter implements OutputInterface
 {
-    /** @var  CliThemeInterface */
-    public $theme;
-
-    public function __construct()
-    {
-        $this->setTheme(new DefaultCliTheme());
-    }
-
-    public function load(App $app)
-    {
-        //
-    }
+    /**
+     * @var  CliThemeInterface
+     */
+    private $theme;
 
     /**
-     * @param CliThemeInterface $theme
+     * @var OutputInterface
      */
-    public function setTheme(CliThemeInterface $theme)
+    private $output;
+
+    /**
+     * @var string
+     */
+    private $style;
+
+    public function __construct(?OutputInterface $output = null, ?CliThemeInterface $theme = null, string $style = 'default')
+    {
+        $this->output = $output ?? new BasicPrinter();
+        $this->theme = $theme ?? CliTheme::default();
+        $this->style = $style;
+    }
+
+    public function getTheme(): CliThemeInterface
+    {
+        return $this->theme;
+    }
+
+    public function setTheme(CliThemeInterface $theme): void
     {
         $this->theme = $theme;
     }
-    
-    public function newline()
+
+    public function getOutput(): OutputInterface
     {
-        $this->rawOutput("\n");
+        return $this->output;
     }
 
-    /**
-     * @param string $message
-     * @return void
-     */
-    public function display($message)
+    public function setOutput(OutputInterface $output): void
     {
-        $this->newline();
-        $this->out($message);
-        $this->newline();
-        $this->newline();
+        $this->output = $output;
     }
 
-    /**
-     * @param string $message
-     * @param string $style
-     * @return string
-     */
-    public function format($message, $style = "default")
+    public function getStyle(string $style): void
     {
-        $style_colors = $this->theme->$style;
+        $this->style = $style;
+    }
 
+    public function setStyle(string $style): void
+    {
+        $this->style = $style;
+    }
+
+    public function newline(): void
+    {
+       $this->output->newline();
+    }
+
+    public function out(string $message): void
+    {
+        $message = $this->format($message, $this->style);
+
+        $this->output->out($message);
+    }
+
+    public function display(string $message): void
+    {
+        $message = $this->format($message, $this->style);
+
+        $this->output->display($message);
+    }
+
+    public function rawOutput(string $message): void
+    {
+        $this->output->out($message);
+    }
+
+    public function format(string $message, string $style): string
+    {
+        if ('' === $style) {
+            return $message;
+        }
+
+        $style_colors = $this->theme->getColor($style);
         $bg = '';
         if (isset($style_colors[1])) {
             $bg = ';' . $style_colors[1];
@@ -67,70 +101,34 @@ class CliPrinter implements OutputInterface, ServiceInterface
         return $output;
     }
 
-    /**
-     * @param string $message
-     * @param string $style One of the available styles
-     * @return void
-     */
-    public function out($message, $style = "default")
+    public function error(string $message): void
     {
-        echo $this->format($message, $style);
+        $message = $this->format($message, "error");
+
+        $this->output->display($message);
     }
 
-    /**
-     * @param string $content
-     */
-    public function rawOutput($content)
+    public function info(string $message): void
     {
-       echo $content;
+        $message = $this->format($message, "info");
+
+        $this->output->display($message);
     }
 
-    /**
-     * @param string $message
-     * @return void
-     */
-    public function error($message)
+    public function success(string $message): void
     {
-        $this->newline();
-        $this->out($message, "error");
-        $this->newline();
+        $message = $this->format($message, "success");
+
+        $this->output->display($message);
     }
 
-    /**
-     * @param string $message
-     * @return void
-     */
-    public function info($message)
+    public function printTable(array $table, int $min_col_size = 10, bool $with_header = true, bool $spacing = true): void
     {
-        $this->newline();
-        $this->out($message, "info");
-        $this->newline();
-    }
-
-    /**
-     * @param string $message
-     * @return void
-     */
-    public function success($message)
-    {
-        $this->newline();
-        $this->out($message, "success");
-        $this->newline();
-    }
-
-    /**
-     * @param array $table
-     * @param int $min_col_size
-     * @param bool $with_header
-     */
-    public function printTable(array $table, $min_col_size = 10, $with_header = true, $spacing = true)
-    {
-        $first = true;
-
         if ($spacing) {
-            $this->newline();
+            $this->output->newline();
         }
 
+        $first = true;
         foreach ($table as $index => $row) {
 
             $style = "default";
@@ -147,42 +145,26 @@ class CliPrinter implements OutputInterface, ServiceInterface
         }
     }
 
-    /**
-     * @param array $table
-     * @param int $row
-     * @param string $style
-     * @param int $min_col_size
-     */
-    public function printRow(array $table, $row, $style = "default", $min_col_size = 5)
+    public function printRow(array $table, int $row, string $style = "default", int $min_col_size = 5): void
     {
-
         foreach ($table[$row] as $column => $table_cell) {
             $col_size = $this->calculateColumnSize($column, $table, $min_col_size);
 
             $this->printCell($table_cell, $style, $col_size);
         }
 
-        $this->out("\n");
+        $this->newline();
     }
 
-    /**
-     * @param string $table_cell
-     * @param string $style
-     * @param int $col_size
-     */
-    protected function printCell($table_cell, $style = "default", $col_size = 5)
+    protected function printCell(string $table_cell, string $style = "default", int $col_size = 5): void
     {
         $table_cell = str_pad($table_cell, $col_size);
-        $this->out($table_cell, $style);
+        $message = $this->format($table_cell, $style);
+
+        $this->output->out($message);
     }
 
-    /**
-     * @param $column
-     * @param array $table
-     * @param int $min_col_size
-     * @return int
-     */
-    protected function calculateColumnSize($column, array $table, $min_col_size = 5)
+    protected function calculateColumnSize(string $column, array $table, int $min_col_size = 5): int
     {
         $size = $min_col_size;
 

@@ -1,124 +1,110 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Minicli;
 
 use Minicli\Command\CommandCall;
 use Minicli\Command\CommandRegistry;
 use Minicli\Output\CliPrinter;
+use Minicli\Output\OutputService;
+use function method_exists;
 
 class App
 {
     /** @var  string  */
     protected $app_signature;
 
-    /** @var  array */
-    protected $services = [];
+    /** @var  ServiceContainer */
+    protected $container;
 
-    /** @var array  */
-    protected $loaded_services = [];
-
-    public function __construct(array $config = null)
+    public function __construct(ServiceContainer $container)
     {
-        $config = array_merge([
-            'app_path' => __DIR__ . '/../app/Command',
-            'theme'    => 'regular',
-        ], $config);
+        $this->container = $container;
+        if (method_exists($container, 'setApp')) {
+            $this->container->setApp($this);
+        }
 
         $this->setSignature('./minicli help');
+    }
 
-        $this->addService('config', new Config($config));
-        $this->addService('command_registry', new CommandRegistry($this->config->app_path));
-        $this->addService('printer', new CliPrinter());
+    /**
+     * @param array<string,string> $settings
+     */
+    public static function createFromConfig(array $settings = []): self
+    {
+        $settings = $settings + [
+            'app_path' => __DIR__ . '/../app/Command',
+            'theme' => 'regular',
+        ];
+
+        $app = new self(new ServiceContainer());
+        $app->addService('config', new Config($settings));
+        $app->addService('command_registry', new CommandRegistry($settings['app_path']));
+        $app->addService('printer', new OutputService(new CliPrinter()));
+
+        return $app;
     }
 
     /**
      * Magic method implements lazy loading for services.
-     * @param string $name
-     * @return ServiceInterface|null
      */
-    public function __get($name)
+    public function __get(string $name): ?ServiceInterface
     {
-        if (!array_key_exists($name, $this->services)) {
-            return null;
-        }
-
-        if (!array_key_exists($name, $this->loaded_services)) {
-            $this->loadService($name);
-        }
-
-        return $this->services[$name];
+        return $this->container->get($name);
     }
 
-    /**
-     * @param string $name
-     * @param ServiceInterface $service
-     */
-    public function addService($name, ServiceInterface $service)
+    public function addService(string $name, ServiceInterface $service): void
     {
-        $this->services[$name] = $service;
+        $this->container->add($name, $service);
     }
 
-    /**
-     * @param string $name
-     */
-    public function loadService($name)
+    public function getPrinter(): OutputInterface
     {
-        $this->loaded_services[$name] = $this->services[$name]->load($this);
+        /** @var OutputService $printer */
+        $printer = $this->container->get('printer');
+
+        return $printer->output();
     }
 
-    /**
-     * @return ServiceInterface
-     */
-    public function getPrinter()
-    {
-        return $this->printer;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSignature()
+    public function getSignature(): string
     {
         return $this->app_signature;
     }
 
-    /**
-     * @return void
-     */
-    public function printSignature()
+    public function printSignature(): void
     {
-        $this->printer->display($this->getSignature());
+        $this->getPrinter()->display($this->getSignature());
     }
-    /**
-     * @param string $app_signature
-     */
-    public function setSignature($app_signature)
+
+    public function setSignature(string $app_signature): void
     {
         $this->app_signature = $app_signature;
     }
 
-    /**
-     * @param string $name
-     * @param callable $callable
-     */
-    public function registerCommand($name, $callable)
+    public function registerCommand(string $name, callable $callable): void
     {
-        $this->command_registry->registerCommand($name, $callable);
+        /** @var CommandRegistry $registry */
+        $registry = $this->container->get('command_registry');
+
+        $registry->registerCommand($name, $callable);
     }
 
     /**
-     * @param array $argv
+     * @param array<string,string|array<string>> $argv
      */
-    public function runCommand(array $argv = [])
+    public function runCommand(array $argv = []): void
     {
         $input = new CommandCall($argv);
 
-        if (count($input->args) < 2) {
+        if (count($input->getArgs()) < 2) {
             $this->printSignature();
             return;
         }
 
-        $controller = $this->command_registry->getCallableController($input->command, $input->subcommand);
+        /** @var CommandRegistry $registry */
+        $registry = $this->container->get('command_registry');
+        $controller = $registry->getCallableController($input->getCommand(), $input->getSubCommand());
 
         if ($controller instanceof ControllerInterface) {
             $controller->boot($this);
@@ -130,18 +116,15 @@ class App
         $this->runSingle($input);
     }
 
-    /**
-     * @param CommandCall $input
-     */
-    protected function runSingle(CommandCall $input)
+    protected function runSingle(CommandCall $input): void
     {
         try {
-            $callable = $this->command_registry->getCallable($input->command);
-            call_user_func($callable, $input);
+            /** @var CommandRegistry $registry */
+            $registry = $this->container->get('command_registry');
+            $callable = $registry->getCallable($input->getCommand());
+            ($callable)($input);
         } catch (\Exception $e) {
             $this->getPrinter()->display("ERROR: " . $e->getMessage());
-            return;
         }
     }
-
 }

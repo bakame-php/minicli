@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Minicli\Command;
 
 class CommandNamespace
@@ -11,17 +14,13 @@ class CommandNamespace
 
     /**
      * CommandNamespace constructor.
-     * @param string $name
      */
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->name = $name;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -30,7 +29,7 @@ class CommandNamespace
      * Load namespace controllers
      * @return array
      */
-    public function loadControllers($commands_path)
+    public function loadControllers(string $commands_path): array
     {
         foreach (glob($commands_path . '/' . $this->getName() . '/*Controller.php') as $controller_file) {
             $this->loadCommandMap($controller_file);
@@ -42,24 +41,17 @@ class CommandNamespace
     /**
      * @return array
      */
-    public function getControllers()
+    public function getControllers(): array
     {
         return $this->controllers;
     }
 
-    /**
-     * @param $command_name
-     * @return CommandController
-     */
-    public function getController($command_name)
+    public function getController(string $command_name): ?CommandController
     {
         return isset($this->controllers[$command_name]) ? $this->controllers[$command_name] : null;
     }
 
-    /**
-     * @param string $controller_file
-     */
-    protected function loadCommandMap($controller_file)
+    protected function loadCommandMap(string $controller_file): void
     {
         $filename = basename($controller_file);
 
@@ -72,7 +64,8 @@ class CommandNamespace
         $this->controllers[$command_name] = $controller;
     }
 
-    protected function getNamespace($filename) {
+    protected function getNamespace(string $filename): string
+    {
         $lines = preg_grep('/^namespace /', file($filename));
         $namespace_line = array_shift($lines);
         $match = [];

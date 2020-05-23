@@ -1,27 +1,28 @@
 <?php
 
-namespace Minicli\Command;
+declare(strict_types=1);
 
+namespace Minicli\Command;
 
 class CommandCall
 {
-    /** @var string  */
-    public $command;
+    /** @var string|null */
+    protected $command;
 
     /** @var string */
-    public $subcommand;
+    protected $subcommand;
 
     /** @var array */
-    public $args = [];
+    protected $args = [];
 
     /** @var array  */
-    public $raw_args = [];
+    protected $raw_args = [];
 
     /** @var array */
-    public $params = [];
+    protected $params = [];
 
-    /** @var array  */
-    public $flags = [];
+    /** @var array */
+    protected $flags = [];
 
     /**
      * CommandCall constructor.
@@ -32,12 +33,12 @@ class CommandCall
         $this->raw_args = $argv;
         $this->parseCommand($argv);
 
-        $this->command = isset($this->args[1]) ? $this->args[1] : null;
+        $this->command = $this->args[1] ?? null;
 
-        $this->subcommand = isset($this->args[2]) ? $this->args[2] : 'default';
+        $this->subcommand = $this->args[2] ?? 'default';
     }
 
-    protected function parseCommand($argv)
+    protected function parseCommand(iterable $argv): void
     {
         foreach ($argv as $arg) {
 
@@ -57,48 +58,48 @@ class CommandCall
         }
     }
 
-    /**
-     * @param string $param
-     * @return bool
-     */
-    public function hasParam($param)
+    public function hasParam(string $param): bool
     {
         return isset($this->params[$param]);
     }
 
-    /**
-     * @param string $flag
-     * @return bool
-     */
-    public function hasFlag($flag)
+    public function hasFlag(string $flag): bool
     {
-        return in_array($flag, $this->flags);
+        return in_array($flag, $this->flags, true);
     }
 
-    /**
-     * @param string $param
-     * @return string|null
-     */
-    public function getParam($param)
+    public function getParam(string $param): ?string
     {
-        return $this->hasParam($param) ? $this->params[$param] : null;
+        return $this->params[$param] ?? null;
     }
 
-    /**
-     * @return array
-     */
-    public function getRawArgs()
+    public function getParams(): array
+    {
+        return $this->params;
+    }
+
+    public function getRawArgs(): array
     {
         return $this->raw_args;
     }
 
-    /**
-     * @return array
-     */
-    public function getFlags()
+    public function getArgs(): array
+    {
+        return $this->args;
+    }
+
+    public function getFlags(): array
     {
         return $this->flags;
     }
 
+    public function getCommand(): ?string
+    {
+        return $this->command;
+    }
 
+    public function getSubCommand(): string
+    {
+        return $this->subcommand;
+    }
 }

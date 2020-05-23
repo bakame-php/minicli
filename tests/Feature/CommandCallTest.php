@@ -6,8 +6,8 @@ it('asserts input arguments are loaded and properties are set', function () {
     $call = new CommandCall(["minicli", "help", "test"]);
 
     assertCount(3, $call->getRawArgs());
-    assertEquals("help", $call->command);
-    assertEquals("test", $call->subcommand);
+    assertEquals("help", $call->getCommand());
+    assertEquals("test", $call->getSubCommand());
 });
 
 it('asserts flags are correctly set', function () {

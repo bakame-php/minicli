@@ -1,27 +1,25 @@
 <?php
 
-namespace Minicli;
+declare(strict_types=1);
 
+namespace Minicli;
 
 interface OutputInterface
 {
     /**
      * Prints a message (no linebreak).
-     * @param string $message
+     *
      * @return mixed
      */
-    public function out($message);
+    public function out(string $message): void;
 
     /**
      * Prints a line break.
-     * @return void
      */
-    public function newline();
+    public function newline(): void;
 
     /**
      * Displays a message wrapped in new lines.
-     * @param $message
-     * @return void
      */
-    public function display($message);
+    public function display(string $message): void;
 }

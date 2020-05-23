@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Minicli;
 
 class Input
@@ -10,12 +12,12 @@ class Input
     /** @var string */
     protected $prompt;
 
-    public function __construct($prompt = 'minicli$> ')
+    public function __construct(string $prompt = 'minicli$> ')
     {
         $this->setPrompt($prompt);
     }
 
-    public function read()
+    public function read(): string
     {
         $input = readline($this->getPrompt());
         $this->input_history[] = $input;
@@ -24,25 +26,19 @@ class Input
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
-    public function getInputHistory()
+    public function getInputHistory(): array
     {
         return $this->input_history;
     }
 
-    /**
-     * @return string
-     */
-    public function getPrompt()
+    public function getPrompt(): string
     {
         return $this->prompt;
     }
 
-    /**
-     * @param string $prompt
-     */
-    public function setPrompt(string $prompt)
+    public function setPrompt(string $prompt): void
     {
         $this->prompt = $prompt;
     }

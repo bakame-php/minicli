@@ -1,23 +1,53 @@
 <?php
 
-namespace Minicli\Output;
+declare(strict_types=1);
 
+namespace Minicli\Output;
 
 interface CliThemeInterface
 {
-    public function getDefault();
+    /**
+     * @return array<string>
+     */
+    public function getDefault(): array;
 
-    public function getAlt();
+    /**
+     * @return array<string>
+     */
+    public function getAlt(): array;
 
-    public function getError();
+    /**
+     * @return array<string>
+     */
+    public function getError(): array;
 
-    public function getErrorAlt();
+    /**
+     * @return array<string>
+     */
+    public function getErrorAlt(): array;
 
-    public function getSuccess();
+    /**
+     * @return array<string>
+     */
+    public function getSuccess(): array;
 
-    public function getSuccessAlt();
+    /**
+     * @return array<string>
+     */
+    public function getSuccessAlt(): array;
 
-    public function getInfo();
+    /**
+     * @return array<string>
+     */
+    public function getInfo(): array;
 
-    public function getInfoAlt();
+    /**
+     * @return array<string>
+     */
+    public function getInfoAlt(): array;
+
+    /**
+     * @return array<string>
+     */
+    public function getColor(string $name): array;
 }
